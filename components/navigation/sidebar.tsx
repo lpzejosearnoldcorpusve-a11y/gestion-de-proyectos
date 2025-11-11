@@ -1,0 +1,53 @@
+"use client"
+
+import { Logo } from "@/components/common/logo"
+import { FileText, Home, Send, BarChart3, Settings } from "lucide-react"
+import Link from "next/link"
+
+interface SidebarProps {
+  isOpen: boolean
+}
+
+export function Sidebar({ isOpen }: SidebarProps) {
+  const menuItems = [
+    { icon: Home, label: "Dashboard", href: "/dashboard" },
+    { icon: FileText, label: "Documentos", href: "/documents" },
+    { icon: Send, label: "Solicitudes", href: "/requests" },
+    { icon: BarChart3, label: "Reportes", href: "/reports" },
+  ]
+
+  return (
+    <>
+      {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => isOpen} />}
+      <aside
+        className={`fixed lg:static top-0 left-0 h-full w-64 bg-card border-r border-border transition-transform duration-300 z-40 flex flex-col ${
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <div className="p-6 border-b border-border">
+          <Logo />
+        </div>
+
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/20 transition-all group"
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="font-medium">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-border">
+          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/20 transition-all">
+            <Settings className="w-5 h-5" />
+            <span className="font-medium">Configuración</span>
+          </button>
+        </div>
+      </aside>
+    </>
+  )
+}
