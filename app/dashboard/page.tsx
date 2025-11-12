@@ -71,7 +71,7 @@ export default function DashboardPage() {
                   <p className="text-3xl font-bold text-foreground mt-2">{stat.value}</p>
                 </div>
                 <div
-                  className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center`}
+                  className={`w-12 h-12 bg-linear-to-br ${stat.color} rounded-lg flex items-center justify-center`}
                 >
                   <stat.icon className="w-6 h-6 text-white" />
                 </div>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
         <Card className="p-6 border-border bg-card">
           <h2 className="text-xl font-bold text-foreground mb-4">Acciones Rápidas</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            <button className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-primary-foreground transition-all font-medium">
+            <button className="flex items-center gap-3 p-4 rounded-lg bg-linear-to-r from-primary to-secondary hover:opacity-90 text-primary-foreground transition-all font-medium">
               <PlusCircle className="w-5 h-5" />
               Nueva Solicitud
             </button>

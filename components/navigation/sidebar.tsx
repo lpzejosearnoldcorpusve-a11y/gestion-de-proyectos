@@ -1,19 +1,25 @@
 "use client"
 
 import { Logo } from "@/components/common/logo"
-import { FileText, Home, Send, BarChart3, Settings } from "lucide-react"
+import { FileText, Home, Send, BarChart3, Settings, Users, Shield, Lock } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 interface SidebarProps {
   isOpen: boolean
 }
 
 export function Sidebar({ isOpen }: SidebarProps) {
+  const pathname = usePathname()
+
   const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: FileText, label: "Documentos", href: "/documents" },
     { icon: Send, label: "Solicitudes", href: "/requests" },
     { icon: BarChart3, label: "Reportes", href: "/reports" },
+    { icon: Users, label: "Usuarios", href: "/dashboard/usuarios" },
+    { icon: Shield, label: "Roles", href: "/dashboard/roles" },
+    { icon: Lock, label: "Permisos", href: "/dashboard/permisos" },
   ]
 
   return (
@@ -29,16 +35,23 @@ export function Sidebar({ isOpen }: SidebarProps) {
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/20 transition-all group"
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
-            </Link>
-          ))}
+          {menuItems.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all group ${
+                  isActive
+                    ? "text-foreground bg-blue-600 font-semibold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/20"
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="p-4 border-t border-border">
