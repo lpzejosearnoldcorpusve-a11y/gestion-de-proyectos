@@ -8,6 +8,13 @@
       "when": 1762893451476,
       "tag": "0000_panoramic_aaron_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1762970165938,
+      "tag": "0001_cuddly_miracleman",
+      "breakpoints": true
     }
   ]
 }

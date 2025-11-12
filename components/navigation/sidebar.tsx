@@ -20,6 +20,8 @@ export function Sidebar({ isOpen }: SidebarProps) {
     { icon: Users, label: "Usuarios", href: "/dashboard/usuarios" },
     { icon: Shield, label: "Roles", href: "/dashboard/roles" },
     { icon: Lock, label: "Permisos", href: "/dashboard/permisos" },
+    { icon: Home, label: "Inmuebles", href: "/dashboard/inmuebles" },
+    { icon: FileText, label: "Expedientes", href: "/dashboard/expedientes" },
   ]
 
   return (
