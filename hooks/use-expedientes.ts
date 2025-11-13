@@ -5,19 +5,18 @@ import type { Expediente, CreateExpedienteDto, UpdateExpedienteDto } from "@/typ
 
 const API_URL = "/api/expedientes"
 
-export function useExpedientes() {
 const fetcher = async (url: string): Promise<Expediente[]> => {
-    const res = await fetch(url)
-    if (!res.ok) throw new Error("Error al obtener expedientes")
-    return res.json()
+  const res = await fetch(url)
+  if (!res.ok) throw new Error("Error al obtener expedientes")
+  return (await res.json()) as Expediente[]
 }
-
-const {
+export function useExpedientes() {
+  const {
     data: expedientes,
     error,
     isLoading,
     mutate,
-} = useSWR<Expediente[]>(API_URL, fetcher)
+  } = useSWR<Expediente[], Error>(API_URL, fetcher)
 
   const createExpediente = async (data: CreateExpedienteDto) => {
     const res = await fetch(API_URL, {
@@ -56,6 +55,20 @@ const {
     createExpediente,
     updateExpediente,
     deleteExpediente,
+    mutate,
+  }
+}
+
+export function useExpedientesDelInmueble(inmuebleId?: string) {
+  const { data, error, isLoading, mutate } = useSWR<Expediente[], Error>(
+    inmuebleId ? `/api/expedientes?inmueble_id=${inmuebleId}` : null,
+    fetcher,
+  )
+
+  return {
+    expedientes: data || [],
+    isLoading,
+    error,
     mutate,
   }
 }
