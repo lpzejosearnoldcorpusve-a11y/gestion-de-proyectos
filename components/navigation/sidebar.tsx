@@ -1,9 +1,10 @@
 "use client"
 
 import { Logo } from "@/components/common/logo"
-import { FileText, Home, Send, BarChart3, Settings, Users, Shield, Lock } from "lucide-react"
+import { FileText, Home, Send, BarChart3, Settings, Users, Shield, Lock, Building2 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 
 interface SidebarProps {
   isOpen: boolean
@@ -11,18 +12,56 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen }: SidebarProps) {
   const pathname = usePathname()
+  const { hasPermission, user } = useAuth()
 
   const menuItems = [
-    { icon: Home, label: "Dashboard", href: "/dashboard" },
-    { icon: FileText, label: "Documentos", href: "/documents" },
-    { icon: Send, label: "Solicitudes", href: "/requests" },
-    { icon: BarChart3, label: "Reportes", href: "/reports" },
-    { icon: Users, label: "Usuarios", href: "/dashboard/usuarios" },
-    { icon: Shield, label: "Roles", href: "/dashboard/roles" },
-    { icon: Lock, label: "Permisos", href: "/dashboard/permisos" },
-    { icon: Home, label: "Inmuebles", href: "/dashboard/inmuebles" },
-    { icon: FileText, label: "Expedientes", href: "/dashboard/expedientes" },
+    { icon: Home, label: "Dashboard", href: "/dashboard", permission: null },
+    {
+      icon: FileText,
+      label: "Documentos",
+      href: "/documents",
+      permission: "view_documents",
+    },
+    { icon: Send, label: "Solicitudes", href: "/requests", permission: "view_requests" },
+    {
+      icon: BarChart3,
+      label: "Reportes",
+      href: "/reports",
+      permission: "view_reports",
+    },
+    {
+      icon: Users,
+      label: "Usuarios",
+      href: "/dashboard/usuarios",
+      permission: "manage_users",
+    },
+    {
+      icon: Shield,
+      label: "Roles",
+      href: "/dashboard/roles",
+      permission: "manage_roles",
+    },
+    {
+      icon: Lock,
+      label: "Permisos",
+      href: "/dashboard/permisos",
+      permission: "manage_permissions",
+    },
+    {
+      icon: Building2,
+      label: "Inmuebles",
+      href: "/dashboard/inmuebles",
+      permission: "view_inmuebles",
+    },
+    {
+      icon: FileText,
+      label: "Expedientes",
+      href: "/dashboard/expedientes",
+      permission: "view_expedientes",
+    },
   ]
+
+  const visibleItems = menuItems.filter((item) => !item.permission || hasPermission(item.permission))
 
   return (
     <>
@@ -37,7 +76,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          {menuItems.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
@@ -56,12 +95,18 @@ export function Sidebar({ isOpen }: SidebarProps) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-border">
-          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/20 transition-all">
-            <Settings className="w-5 h-5" />
-            <span className="font-medium">Configuración</span>
-          </button>
-        </div>
+        {user && (
+          <div className="p-4 border-t border-border">
+            <div className="text-xs text-muted-foreground mb-3">
+              <p className="font-semibold text-foreground">{user.nombre}</p>
+              <p>{user.roles.join(", ")}</p>
+            </div>
+            <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/20 transition-all">
+              <Settings className="w-5 h-5" />
+              <span className="font-medium">Configuración</span>
+            </button>
+          </div>
+        )}
       </aside>
     </>
   )

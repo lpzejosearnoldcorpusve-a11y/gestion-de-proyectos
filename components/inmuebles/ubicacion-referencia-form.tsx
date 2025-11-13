@@ -59,7 +59,7 @@ export function UbicacionReferenciaForm({ inmuebleId, onSubmit, isLoading }: Ubi
   }
 
   return (
-    <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-blue-500/30">
+    <Card className="bg-linear-to-br from-slate-950 to-slate-900 border-blue-500/30">
       <CardHeader>
         <CardTitle className="text-blue-400">Ubicación Geográfica - La Paz</CardTitle>
         <CardDescription className="text-slate-400">

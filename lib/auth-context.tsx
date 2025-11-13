@@ -1,59 +1,112 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
-
-interface User {
-  id: string
-  email: string
-  name: string
-}
+import { createContext, useContext, useState, useEffect, useCallback } from "react"
+import { TokenManager } from "@/lib/token-manager"
+import type { UserWithRoles } from "@/types/auth"
 
 interface AuthContextType {
-  user: User | null
+  user: UserWithRoles | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
+  hasPermission: (permissionCode: string) => boolean
+  hasRole: (roleName: string) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserWithRoles | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Cargar usuario del localStorage al montar
   useEffect(() => {
-    const stored = localStorage.getItem("user")
-    if (stored) {
-      setUser(JSON.parse(stored))
+    const loadUser = async () => {
+      const token = TokenManager.getToken()
+      if (token) {
+        try {
+          const response = await fetch("/api/auth/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            setUser(data.user)
+          } else {
+            TokenManager.clearToken()
+          }
+        } catch (error) {
+          console.error("[v0] Error verifying token:", error)
+          TokenManager.clearToken()
+        }
+      }
+      setIsLoading(false)
     }
-    setIsLoading(false)
+
+    loadUser()
   }, [])
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true)
-    // Simular llamada a API
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
 
-    // Datos de demo
-    const newUser: User = {
-      id: "1",
-      email,
-      name: email.split("@")[0],
+      if (!response.ok) {
+        throw new Error("Invalid credentials")
+      }
+
+      const data = await response.json()
+      TokenManager.setToken(data.token)
+      setUser(data.user)
+    } catch (error) {
+      throw error
+    } finally {
+      setIsLoading(false)
     }
+  }, [])
 
-    setUser(newUser)
-    localStorage.setItem("user", JSON.stringify(newUser))
-    setIsLoading(false)
-  }
-
-  const logout = () => {
+  const logout = useCallback(async () => {
+    const token = TokenManager.getToken()
+    if (token) {
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        })
+      } catch (error) {
+        console.error("[v0] Logout error:", error)
+      }
+    }
+    TokenManager.clearToken()
     setUser(null)
-    localStorage.removeItem("user")
-  }
+  }, [])
 
-  return <AuthContext.Provider value={{ user, isLoading, login, logout }}>{children}</AuthContext.Provider>
+  const hasPermission = useCallback(
+    (permissionCode: string) => {
+      return user?.permisos.includes(permissionCode) ?? false
+    },
+    [user],
+  )
+
+  const hasRole = useCallback(
+    (roleName: string) => {
+      return user?.roles.includes(roleName) ?? false
+    },
+    [user],
+  )
+
+  return (
+    <AuthContext.Provider value={{ user, isLoading, login, logout, hasPermission, hasRole }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

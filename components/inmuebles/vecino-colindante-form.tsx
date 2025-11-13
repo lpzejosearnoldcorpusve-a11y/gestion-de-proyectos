@@ -40,7 +40,7 @@ export function VecinoColindanteForm({ inmuebleId, onSubmit, isLoading }: Vecino
   }
 
   return (
-    <Card className="bg-gradient-to-br from-slate-950 to-slate-900 border-blue-500/30">
+    <Card className="bg-linear-to-br from-slate-950 to-slate-900 border-blue-500/30">
       <CardHeader>
         <CardTitle className="text-blue-400">Vecino Colindante</CardTitle>
         <CardDescription className="text-slate-400">Información de propiedades adyacentes</CardDescription>

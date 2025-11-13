@@ -1,7 +1,6 @@
 "use client"
 
 import { useAuth } from "@/hooks/use-auth"
-import { usePermissions } from "@/hooks/use-permissions"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { DashboardLayout } from "@/components/layouts/dashboard-layout"
@@ -10,9 +9,10 @@ import { FileText, PlusCircle, Clock, CheckCircle } from "lucide-react"
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth()
-  const { permissions } = usePermissions()
+  const permissions = Array.isArray(user?.permisos) && user?.permisos.every(p => typeof p === 'object' && 'status' in p)
+    ? (user.permisos as { status: string; [key: string]: any }[])
+    : []
   const router = useRouter()
-
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/")
@@ -57,7 +57,7 @@ export default function DashboardPage() {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Bienvenido, {user.name}</h1>
+          <h1 className="text-3xl font-bold text-foreground">Bienvenido, {user.nombre || user.email || "Usuario"}</h1>
           <p className="text-muted-foreground mt-2">Visualiza el estado de tus documentos y solicitudes de permisos</p>
         </div>
 

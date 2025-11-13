@@ -1,70 +1,53 @@
 "use client"
 
-import { useState, useCallback } from "react"
-
-interface Permission {
-  id: string
-  title: string
-  status: "pendiente" | "aprobado" | "rechazado"
-  type: "terreno" | "casa"
-  date: string
-}
-
-const mockPermissions: Permission[] = [
-  {
-    id: "1",
-    title: "Permiso de Construcción - Lote 5",
-    status: "aprobado",
-    type: "terreno",
-    date: "2024-01-15",
-  },
-  {
-    id: "2",
-    title: "Licencia de Reforma - Avenida Principal",
-    status: "pendiente",
-    type: "casa",
-    date: "2024-01-20",
-  },
-  {
-    id: "3",
-    title: "Certificado de Vivienda - Zona Centro",
-    status: "rechazado",
-    type: "casa",
-    date: "2024-01-10",
-  },
-  {
-    id: "4",
-    title: "Autorización de Subdivisión",
-    status: "pendiente",
-    type: "terreno",
-    date: "2024-01-18",
-  },
-]
+import useSWR from "swr"
+import { TokenManager } from "@/lib/token-manager"
+import type { UserWithRoles } from "@/types/auth"
 
 export function usePermissions() {
-  const [permissions] = useState<Permission[]>(mockPermissions)
+  const token = TokenManager.getToken()
 
-  const getStatusColor = useCallback((status: Permission["status"]) => {
-    switch (status) {
-      case "aprobado":
-        return "bg-green-500/20 text-green-400"
-      case "rechazado":
-        return "bg-red-500/20 text-red-400"
-      case "pendiente":
-        return "bg-yellow-500/20 text-yellow-400"
+  const { data: userPermissions, isLoading } = useSWR(token ? `/api/auth/verify-${token}` : null, async () => {
+    if (!token) return null
+
+    const response = await fetch("/api/auth/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    })
+
+    if (!response.ok) {
+      TokenManager.clearToken()
+      return null
     }
-  }, [])
 
-  const getStatusLabel = useCallback((status: Permission["status"]) => {
-    switch (status) {
-      case "aprobado":
-        return "Aprobado"
-      case "rechazado":
-        return "Rechazado"
-      case "pendiente":
-        return "Pendiente"
-    }
-  }, [])
+    const data = await response.json()
+    return data.user as UserWithRoles
+  })
 
-  return { permissions, getStatusColor, getStatusLabel }
+  const hasPermission = (permissionCode: string): boolean => {
+    return userPermissions?.permisos.includes(permissionCode) ?? false
+  }
+
+  const hasRole = (roleName: string): boolean => {
+    return userPermissions?.roles.includes(roleName) ?? false
+  }
+
+  const hasAnyPermission = (permissionCodes: string[]): boolean => {
+    return permissionCodes.some((code) => hasPermission(code))
+  }
+
+  const hasAllPermissions = (permissionCodes: string[]): boolean => {
+    return permissionCodes.every((code) => hasPermission(code))
+  }
+
+  return {
+    user: userPermissions,
+    permissions: userPermissions?.permisos || [], 
+    isLoading,
+    hasPermission,
+    hasRole,
+    hasAnyPermission,
+    hasAllPermissions,
+  }
 }
