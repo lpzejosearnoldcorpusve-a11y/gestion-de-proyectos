@@ -1,7 +1,7 @@
 "use client"
 
 import { Logo } from "@/components/common/logo"
-import { FileText, Home, Send, BarChart3, Settings, Users, Shield, Lock, Building2 } from "lucide-react"
+import { FileText, Home, Send, BarChart3, Settings, Users, Shield, Lock, Building2, Brain } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
@@ -19,15 +19,21 @@ export function Sidebar({ isOpen }: SidebarProps) {
     {
       icon: FileText,
       label: "Documentos",
-      href: "/documents",
+      href: "/dashboard/documents",
       permission: "view_documents",
     },
-    { icon: Send, label: "Solicitudes", href: "/requests", permission: "view_requests" },
+    { icon: Send, label: "Solicitudes", href: "/dashboard/requests", permission: "view_requests" },
     {
       icon: BarChart3,
       label: "Reportes",
-      href: "/reports",
+      href: "/dashboard/reports",
       permission: "view_reports",
+    },
+    {
+      icon: Brain,
+      label: "IA Analytics",
+      href: "/dashboard/ai",
+      permission: "manage_users",
     },
     {
       icon: Users,
